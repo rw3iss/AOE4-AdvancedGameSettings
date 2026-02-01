@@ -251,6 +251,10 @@ function AGS_GlobalSettings_SetupSettings(options)
 	if options.section_outer_handicap_settings then
 		AGS_GlobalSettings_DefineHandicapSettings(options.section_outer_handicap_settings)
 	end
+
+	if options.section_outer_free_camera_settings then
+		AGS_GlobalSettings_DefineFreeCameraSettings(options.section_outer_free_camera_settings)
+	end
 end
 
 function AGS_GlobalSettings_EarlyInitializations()
@@ -1194,5 +1198,132 @@ function AGS_GlobalSettings_SetTownCenterRestricts(tc_restrictions)
 		AGS_GLOBAL_SETTINGS.TownCenterRestrictions = AGS_GS_TC_RESTRICTIONS_NORMAL
 	elseif tc_restrictions.enum_value == tc_restrictions.enum_items.town_center_restriction_landmarks then
 		AGS_GLOBAL_SETTINGS.TownCenterRestrictions = AGS_GS_TC_RESTRICTIONS_LANDMARKS
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Free Camera Settings:
+---------------------------------------------------------------------------------------------------
+
+function AGS_GlobalSettings_DefineFreeCameraSettings(category)
+	-- Enable/disable free camera feature
+	if category.option_free_camera_enabled ~= nil then
+		AGS_GLOBAL_SETTINGS.FreeCameraEnabled = category.option_free_camera_enabled
+	end
+	-- Zoom distance settings
+	if category.option_free_camera_min_zoom then
+		AGS_GlobalSettings_SetFreeCameraMinZoom(category.option_free_camera_min_zoom)
+	end
+	if category.option_free_camera_max_zoom then
+		AGS_GlobalSettings_SetFreeCameraMaxZoom(category.option_free_camera_max_zoom)
+	end
+	if category.option_free_camera_default_zoom then
+		AGS_GlobalSettings_SetFreeCameraDefaultZoom(category.option_free_camera_default_zoom)
+	end
+	-- Declination/angle settings
+	if category.option_free_camera_min_declination then
+		AGS_GlobalSettings_SetFreeCameraMinDeclination(category.option_free_camera_min_declination)
+	end
+	if category.option_free_camera_max_declination then
+		AGS_GlobalSettings_SetFreeCameraMaxDeclination(category.option_free_camera_max_declination)
+	end
+	if category.option_free_camera_default_declination then
+		AGS_GlobalSettings_SetFreeCameraDefaultDeclination(category.option_free_camera_default_declination)
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraMinZoom(min_zoom)
+	if min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_5 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 5
+	elseif min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_10 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 10
+	elseif min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_15 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 15
+	elseif min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_20 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 20
+	elseif min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_25 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 25
+	elseif min_zoom.enum_value == min_zoom.enum_items.free_camera_zoom_30 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinZoomDistance = 30
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraMaxZoom(max_zoom)
+	if max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_50 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 50
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_75 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 75
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_100 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 100
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_150 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 150
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_200 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 200
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_250 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 250
+	elseif max_zoom.enum_value == max_zoom.enum_items.free_camera_zoom_300 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxZoomDistance = 300
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraDefaultZoom(default_zoom)
+	if default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_20 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 20
+	elseif default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_30 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 30
+	elseif default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_40 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 40
+	elseif default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_50 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 50
+	elseif default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_60 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 60
+	elseif default_zoom.enum_value == default_zoom.enum_items.free_camera_zoom_75 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultZoomDistance = 75
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraMinDeclination(min_declination)
+	if min_declination.enum_value == min_declination.enum_items.free_camera_declination_5 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 5
+	elseif min_declination.enum_value == min_declination.enum_items.free_camera_declination_10 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 10
+	elseif min_declination.enum_value == min_declination.enum_items.free_camera_declination_15 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 15
+	elseif min_declination.enum_value == min_declination.enum_items.free_camera_declination_20 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 20
+	elseif min_declination.enum_value == min_declination.enum_items.free_camera_declination_25 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 25
+	elseif min_declination.enum_value == min_declination.enum_items.free_camera_declination_30 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MinDeclination = 30
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraMaxDeclination(max_declination)
+	if max_declination.enum_value == max_declination.enum_items.free_camera_declination_60 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxDeclination = 60
+	elseif max_declination.enum_value == max_declination.enum_items.free_camera_declination_70 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxDeclination = 70
+	elseif max_declination.enum_value == max_declination.enum_items.free_camera_declination_80 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxDeclination = 80
+	elseif max_declination.enum_value == max_declination.enum_items.free_camera_declination_85 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxDeclination = 85
+	elseif max_declination.enum_value == max_declination.enum_items.free_camera_declination_89 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.MaxDeclination = 89
+	end
+end
+
+function AGS_GlobalSettings_SetFreeCameraDefaultDeclination(default_declination)
+	if default_declination.enum_value == default_declination.enum_items.free_camera_declination_30 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 30
+	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_40 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 40
+	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_45 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 45
+	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_50 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 50
+	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_55 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 55
+	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_60 then
+		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 60
 	end
 end
