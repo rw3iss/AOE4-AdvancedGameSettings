@@ -1,0 +1,139 @@
+---------------------------------------------------------------------------------------------------
+-- Authors:
+-- Woprock (original AGS framework)
+-- Custom Extension
+--
+-- Description:
+-- Extends camera controls to allow for greater zoom range and camera angle adjustments.
+-- When enabled, the player can zoom in/out much further and adjust the camera declination
+-- (viewing angle) for a more flexible perspective of the battlefield.
+---------------------------------------------------------------------------------------------------
+
+AGS_FREE_CAMERA_MODULE = "AGS_FreeCamera"
+
+-- Key code constants for modifier keys
+AGS_KEY_ALT = 2
+
+-- Tracking state for camera mode
+AGS_FREE_CAMERA_ALT_HELD = false
+AGS_FREE_CAMERA_ORIGINAL_ZOOM = nil
+AGS_FREE_CAMERA_ORIGINAL_DECLINATION = nil
+
+---------------------------------------------------------------------------------------------------
+-- Delegates:
+---------------------------------------------------------------------------------------------------
+
+Core_RegisterModule(AGS_FREE_CAMERA_MODULE)
+
+function AGS_FreeCamera_UpdateModuleSettings()
+	AGS_Print("AGS_FreeCamera_UpdateModuleSettings")
+	if not AGS_GLOBAL_SETTINGS.FreeCameraEnabled then
+		Core_UnregisterModule(AGS_FREE_CAMERA_MODULE)
+	end
+end
+
+function AGS_FreeCamera_OnPlay()
+	AGS_Print("AGS_FreeCamera_OnPlay")
+	-- Set extended camera defaults at game start
+	AGS_FreeCamera_ApplyExtendedLimits()
+	-- Start the input monitoring rule
+	Rule_AddInterval(AGS_FreeCamera_MonitorInput, 0.1)
+end
+
+function AGS_FreeCamera_OnGameOver()
+	AGS_Print("AGS_FreeCamera_OnGameOver")
+	if Rule_Exists(AGS_FreeCamera_MonitorInput) then
+		Rule_Remove(AGS_FreeCamera_MonitorInput)
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Functions:
+---------------------------------------------------------------------------------------------------
+
+-- Apply extended camera limits to allow greater zoom and angle range
+function AGS_FreeCamera_ApplyExtendedLimits()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+
+	-- Set default zoom distance (allows for wider zoom range)
+	Camera_SetDefaultZoomDist(settings.DefaultZoomDistance)
+
+	-- Set default declination (camera angle from horizontal)
+	Camera_SetDefaultDeclination(settings.DefaultDeclination)
+
+	-- Remove camera clamping restrictions
+	Camera_Unclamp()
+
+	AGS_Print("Free Camera: Extended limits applied")
+end
+
+-- Monitor for Alt key input to enable enhanced camera mode
+function AGS_FreeCamera_MonitorInput()
+	local alt_pressed = Misc_DetectKeyboardInput(AGS_KEY_ALT)
+
+	if alt_pressed and not AGS_FREE_CAMERA_ALT_HELD then
+		-- Alt key just pressed - save current camera state and apply extended mode
+		AGS_FREE_CAMERA_ALT_HELD = true
+		AGS_FreeCamera_EnterExtendedMode()
+	elseif not alt_pressed and AGS_FREE_CAMERA_ALT_HELD then
+		-- Alt key just released - restore previous camera state
+		AGS_FREE_CAMERA_ALT_HELD = false
+		AGS_FreeCamera_ExitExtendedMode()
+	end
+end
+
+-- Enter extended camera mode when Alt is held
+function AGS_FreeCamera_EnterExtendedMode()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+
+	-- Save current camera state
+	AGS_FREE_CAMERA_ORIGINAL_ZOOM = Camera_GetZoomDist()
+	AGS_FREE_CAMERA_ORIGINAL_DECLINATION = Camera_GetDeclination()
+
+	-- Apply extended zoom distance
+	Camera_SetDefaultZoomDist(settings.MaxZoomDistance)
+
+	-- Set default declination to allow full range
+	Camera_SetDefaultDeclination(settings.DefaultDeclination)
+
+	AGS_Print("Free Camera: Extended mode enabled")
+end
+
+-- Exit extended camera mode when Alt is released
+function AGS_FreeCamera_ExitExtendedMode()
+	-- The camera returns to normal game defaults when free camera mode ends
+	-- We just need to reset our extended defaults
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+
+	Camera_SetDefaultZoomDist(settings.DefaultZoomDistance)
+	Camera_SetDefaultDeclination(settings.DefaultDeclination)
+
+	AGS_Print("Free Camera: Extended mode disabled")
+end
+
+-- Utility function to set zoom distance within extended limits
+function AGS_FreeCamera_SetZoom(distance)
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	local clamped = math.max(settings.MinZoomDistance, math.min(settings.MaxZoomDistance, distance))
+	Camera_SetZoomDist(clamped)
+end
+
+-- Utility function to set declination within extended limits
+function AGS_FreeCamera_SetDeclination(angle)
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	local clamped = math.max(settings.MinDeclination, math.min(settings.MaxDeclination, angle))
+	Camera_SetDeclination(clamped)
+end
+
+-- Utility function to set orbit/rotation
+function AGS_FreeCamera_SetOrbit(angle)
+	Camera_SetOrbit(angle)
+end
+
+-- Utility function to reset camera to defaults
+function AGS_FreeCamera_ResetToDefaults()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	Camera_SetZoomDist(settings.DefaultZoomDistance)
+	Camera_SetDeclination(settings.DefaultDeclination)
+	Camera_ResetOrbit()
+end

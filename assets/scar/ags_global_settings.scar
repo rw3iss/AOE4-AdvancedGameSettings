@@ -194,6 +194,17 @@ AGS_GLOBAL_SETTINGS = {
 	MatchUI = true, -- undefined
 	ObserverUI = true, -- undefined
 	TournamentNomadBalance = false,
+
+	-- Free Camera Settings
+	FreeCameraEnabled = true, -- Enables extended camera controls
+	FreeCameraSettings = {
+		MinZoomDistance = 5, -- Minimum zoom distance (closer)
+		MaxZoomDistance = 200, -- Maximum zoom distance (further out)
+		MinDeclination = 10, -- Minimum camera angle (more top-down)
+		MaxDeclination = 80, -- Maximum camera angle (more horizontal)
+		DefaultZoomDistance = 40, -- Default zoom level
+		DefaultDeclination = 45, -- Default camera angle
+	},
 }
 
 ---------------------------------------------------------------------------------------------------
