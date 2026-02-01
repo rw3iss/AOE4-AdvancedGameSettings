@@ -395,3 +395,40 @@
 394,,,,,,Preconfigured version of Nomad for The Nomadic Clash organized by MrMerlin.
 395,,,,KOTH,,King of the Hill AGS
 396,,,,KOTH,,"Provides quick way to play King of the Hill on any map.\n\nHelp, feedback, bug reports and contribution to mode can be done at:\nhttps://github.com/search?q=AOE4-AdvancedGameSettings"
+400,,,,Free Camera Option,,Camera Settings
+401,,,,Free Camera Option,,Configure camera zoom and angle limits for extended camera control.
+402,,,,Free Camera Option,,Free Camera
+403,,,,Free Camera Option,,Enables extended camera controls with greater zoom range and angle adjustment when holding Alt.
+404,,,,Free Camera Option,,Minimum Zoom
+405,,,,Free Camera Option,,How close the camera can zoom in.
+406,,,,Free Camera Option,,Maximum Zoom
+407,,,,Free Camera Option,,How far the camera can zoom out.
+408,,,,Free Camera Option,,Default Zoom
+409,,,,Free Camera Option,,Starting zoom distance when game begins.
+410,,,,Free Camera Option,,Minimum Angle
+411,,,,Free Camera Option,,Minimum camera angle (lower = more top-down view).
+412,,,,Free Camera Option,,Maximum Angle
+413,,,,Free Camera Option,,Maximum camera angle (higher = more horizontal view).
+414,,,,Free Camera Option,,Default Angle
+415,,,,Free Camera Option,,Starting camera angle when game begins.
+416,,,,Number,,5
+417,,,,Number,,10
+418,,,,Number,,15
+419,,,,Number,,20
+420,,,,Number,,25
+421,,,,Number,,30
+422,,,,Number,,40
+423,,,,Number,,50
+424,,,,Number,,60
+425,,,,Number,,75
+426,,,,Number,,100
+427,,,,Number,,150
+428,,,,Number,,200
+429,,,,Number,,250
+430,,,,Number,,300
+431,,,,Number,,45 degrees
+432,,,,Number,,55 degrees
+433,,,,Number,,70 degrees
+434,,,,Number,,80 degrees
+435,,,,Number,,85 degrees
+436,,,,Number,,89 degrees
