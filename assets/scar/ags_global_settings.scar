@@ -255,6 +255,10 @@ function AGS_GlobalSettings_SetupSettings(options)
 	if options.section_outer_free_camera_settings then
 		AGS_GlobalSettings_DefineFreeCameraSettings(options.section_outer_free_camera_settings)
 	end
+
+	if options.section_outer_presets_settings then
+		AGS_GlobalSettings_DefinePresetsSettings(options.section_outer_presets_settings)
+	end
 end
 
 function AGS_GlobalSettings_EarlyInitializations()
@@ -1325,5 +1329,27 @@ function AGS_GlobalSettings_SetFreeCameraDefaultDeclination(default_declination)
 		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 55
 	elseif default_declination.enum_value == default_declination.enum_items.free_camera_declination_60 then
 		AGS_GLOBAL_SETTINGS.FreeCameraSettings.DefaultDeclination = 60
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Presets Settings:
+---------------------------------------------------------------------------------------------------
+
+function AGS_GlobalSettings_DefinePresetsSettings(category)
+	-- Handle preset selection from UI dropdown
+	if category.option_presets_selection then
+		AGS_GlobalSettings_SetPresetsSelection(category.option_presets_selection)
+	end
+end
+
+function AGS_GlobalSettings_SetPresetsSelection(preset_selection)
+	-- Map UI enum values to preset constants and call the presets module
+	if preset_selection.enum_value == preset_selection.enum_items.preset_default then
+		AGS_Presets_SetSelectedPreset(AGS_PRESET_DEFAULT)
+	elseif preset_selection.enum_value == preset_selection.enum_items.preset_upgrades_1 then
+		AGS_Presets_SetSelectedPreset(AGS_PRESET_UPGRADES_1)
+	elseif preset_selection.enum_value == preset_selection.enum_items.preset_load_config then
+		AGS_Presets_SetSelectedPreset(AGS_PRESET_LOAD_CONFIG)
 	end
 end

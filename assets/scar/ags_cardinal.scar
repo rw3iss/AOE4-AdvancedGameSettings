@@ -70,6 +70,8 @@ import("helpers/ags_starts.scar")
 import("coreconditions/ags_conditions.scar")
 -- AGS Scripts read settings from single configuration.
 import("ags_global_settings.scar")
+-- External custom config file (user-editable)
+import("ags_custom_config.lua")
 
 -- Start conditions are creating or destroying entities.
 import("startconditions/ags_start_settled.scar")
@@ -134,6 +136,8 @@ import("balance/ags_tournament_nomad_balance.scar")
 import("specials/ags_utilities.scar")
 -- Special container for testing and unfinished functionality.
 import("specials/ags_testing.scar")
+-- Preset save/load functionality
+import("specials/ags_presets.scar")
 -- Additional UI elements
 import("specials/ags_match_ui.scar")
 -- Observer UI

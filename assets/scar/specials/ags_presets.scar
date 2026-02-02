@@ -1,0 +1,200 @@
+---------------------------------------------------------------------------------------------------
+-- Authors:
+-- Custom Extension
+--
+-- Description:
+-- Provides preset functionality for AGS settings.
+-- Includes built-in presets and external config file loading.
+--
+-- Built-in Presets:
+-- - Default: Standard game settings
+-- - Upgrades 1: Faster production and larger armies
+-- - Load from Config: Loads settings from ags_custom_config.lua
+---------------------------------------------------------------------------------------------------
+
+AGS_PRESETS_MODULE = "AGS_Presets"
+
+-- Preset type constants
+AGS_PRESET_DEFAULT = 0
+AGS_PRESET_UPGRADES_1 = 1
+AGS_PRESET_LOAD_CONFIG = 2
+
+-- Current selected preset
+AGS_SELECTED_PRESET = AGS_PRESET_DEFAULT
+
+---------------------------------------------------------------------------------------------------
+-- Delegates:
+---------------------------------------------------------------------------------------------------
+
+Core_RegisterModule(AGS_PRESETS_MODULE)
+
+function AGS_Presets_UpdateModuleSettings()
+	AGS_Print("AGS_Presets_UpdateModuleSettings")
+	-- Always enabled
+end
+
+function AGS_Presets_AdjustSettings()
+	AGS_Print("AGS_Presets_AdjustSettings")
+	-- Apply the selected preset after initial settings are loaded
+	AGS_Presets_ApplySelectedPreset()
+end
+
+---------------------------------------------------------------------------------------------------
+-- Preset Selection (called from AGS_GlobalSettings):
+---------------------------------------------------------------------------------------------------
+
+-- Set the selected preset from UI option
+function AGS_Presets_SetSelectedPreset(preset_value)
+	AGS_SELECTED_PRESET = preset_value
+	print("[AGS Presets] Selected preset: " .. tostring(preset_value))
+end
+
+-- Apply the currently selected preset
+function AGS_Presets_ApplySelectedPreset()
+	print("[AGS Presets] Applying preset: " .. tostring(AGS_SELECTED_PRESET))
+
+	if AGS_SELECTED_PRESET == AGS_PRESET_DEFAULT then
+		-- Default: No changes, use UI settings as-is
+		print("[AGS Presets] Using default settings (no preset override)")
+
+	elseif AGS_SELECTED_PRESET == AGS_PRESET_UPGRADES_1 then
+		-- Upgrades 1: Faster production, larger armies
+		AGS_Presets_ApplyUpgrades1()
+
+	elseif AGS_SELECTED_PRESET == AGS_PRESET_LOAD_CONFIG then
+		-- Load from external config file
+		AGS_Presets_LoadFromConfigFile()
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Built-in Presets:
+---------------------------------------------------------------------------------------------------
+
+-- Preset: Upgrades 1 - Faster production, larger armies
+function AGS_Presets_ApplyUpgrades1()
+	print("[AGS Presets] Applying 'Upgrades 1' preset")
+
+	-- Faster game rates (research, production)
+	AGS_GLOBAL_SETTINGS.GameRates = 1.5
+
+	-- Faster unit movement
+	AGS_GLOBAL_SETTINGS.UnitRates = 1.25
+
+	-- Larger population cap
+	AGS_GLOBAL_SETTINGS.MaximumPopulation = 300
+	AGS_GLOBAL_SETTINGS.MinimumPopulation = 200
+
+	-- More starting resources
+	AGS_GLOBAL_SETTINGS.StartingResources = AGS_GS_RESOURCES_HIGH
+
+	-- Double workers (cheaper, faster villagers)
+	AGS_GLOBAL_SETTINGS.DoubleWorkers = true
+
+	-- More starting villagers
+	AGS_GLOBAL_SETTINGS.StartingVillagers = 8
+
+	-- Additional house capacity
+	AGS_GLOBAL_SETTINGS.AdditionalHouseCapacity = 10
+
+	print("[AGS Presets] 'Upgrades 1' preset applied:")
+	print("  - Game Rates: 1.5x")
+	print("  - Unit Rates: 1.25x")
+	print("  - Max Population: 300")
+	print("  - Starting Resources: High")
+	print("  - Double Workers: Enabled")
+end
+
+---------------------------------------------------------------------------------------------------
+-- External Config File Loading:
+---------------------------------------------------------------------------------------------------
+
+-- Load settings from the external config file
+function AGS_Presets_LoadFromConfigFile()
+	print("[AGS Presets] Loading from external config file...")
+
+	-- Try to load the config file
+	-- The config file defines AGS_CONFIG_ENABLED and AGS_CUSTOM_CONFIG
+	local config_loaded = false
+
+	-- First, check if the config variables exist (file was imported at startup)
+	if AGS_CONFIG_ENABLED and AGS_CUSTOM_CONFIG then
+		config_loaded = true
+		print("[AGS Presets] Config file found and enabled")
+	else
+		print("[AGS Presets] Config file not found or AGS_CONFIG_ENABLED is false")
+		print("[AGS Presets] Edit 'ags_custom_config.lua' in the mod folder to customize settings")
+		return
+	end
+
+	-- Apply the custom config settings
+	if config_loaded and AGS_CONFIG_ENABLED then
+		AGS_Presets_ApplyConfigSettings(AGS_CUSTOM_CONFIG)
+	end
+end
+
+-- Apply settings from a config table to AGS_GLOBAL_SETTINGS
+function AGS_Presets_ApplyConfigSettings(config)
+	if not config then
+		print("[AGS Presets] Error: Config table is nil")
+		return
+	end
+
+	local applied_count = 0
+
+	for key, value in pairs(config) do
+		if AGS_GLOBAL_SETTINGS[key] ~= nil then
+			if type(value) == "table" and type(AGS_GLOBAL_SETTINGS[key]) == "table" then
+				-- Merge nested tables
+				for sub_key, sub_value in pairs(value) do
+					if AGS_GLOBAL_SETTINGS[key][sub_key] ~= nil then
+						AGS_GLOBAL_SETTINGS[key][sub_key] = sub_value
+						print("[AGS Presets] Set " .. key .. "." .. sub_key .. " = " .. tostring(sub_value))
+						applied_count = applied_count + 1
+					end
+				end
+			else
+				-- Set simple value
+				AGS_GLOBAL_SETTINGS[key] = value
+				print("[AGS Presets] Set " .. key .. " = " .. tostring(value))
+				applied_count = applied_count + 1
+			end
+		else
+			print("[AGS Presets] Warning: Unknown setting '" .. key .. "' ignored")
+		end
+	end
+
+	print("[AGS Presets] Applied " .. applied_count .. " custom settings from config file")
+end
+
+---------------------------------------------------------------------------------------------------
+-- Utility Functions:
+---------------------------------------------------------------------------------------------------
+
+-- Get preset name from value
+function AGS_Presets_GetPresetName(preset_value)
+	if preset_value == AGS_PRESET_DEFAULT then
+		return "Default"
+	elseif preset_value == AGS_PRESET_UPGRADES_1 then
+		return "Upgrades 1"
+	elseif preset_value == AGS_PRESET_LOAD_CONFIG then
+		return "Load from Config"
+	else
+		return "Unknown"
+	end
+end
+
+-- Debug: Print current preset status
+function AGS_Presets_Debug()
+	print("[AGS Presets] Debug Info:")
+	print("  Selected Preset: " .. AGS_Presets_GetPresetName(AGS_SELECTED_PRESET))
+	print("  Config Enabled: " .. tostring(AGS_CONFIG_ENABLED or false))
+	print("  Config Loaded: " .. tostring(AGS_CUSTOM_CONFIG ~= nil))
+
+	print("\n  Key Settings:")
+	print("  - GameRates: " .. tostring(AGS_GLOBAL_SETTINGS.GameRates))
+	print("  - UnitRates: " .. tostring(AGS_GLOBAL_SETTINGS.UnitRates))
+	print("  - MaxPopulation: " .. tostring(AGS_GLOBAL_SETTINGS.MaximumPopulation))
+	print("  - StartingResources: " .. tostring(AGS_GLOBAL_SETTINGS.StartingResources))
+	print("  - DoubleWorkers: " .. tostring(AGS_GLOBAL_SETTINGS.DoubleWorkers))
+end

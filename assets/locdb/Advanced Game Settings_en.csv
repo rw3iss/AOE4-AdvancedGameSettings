@@ -432,3 +432,13 @@
 434,,,,Number,,80 degrees
 435,,,,Number,,85 degrees
 436,,,,Number,,89 degrees
+440,,,,Preset Option,,Presets
+441,,,,Preset Option,,Select a preset to quickly apply pre-configured game settings.
+442,,,,Preset Option,,Settings Preset
+443,,,,Preset Option,,Choose a preset configuration or load settings from an external config file.
+444,,,,Preset Option,,Default
+445,,,,Preset Option,,Use UI settings as configured (no preset override)
+446,,,,Preset Option,,Upgrades 1
+447,,,,Preset Option,,Faster production and larger armies - 1.5x game rates and 300 max population
+448,,,,Preset Option,,Load from Config
+449,,,,Preset Option,,Load settings from ags_custom_config.lua external file
