@@ -1355,12 +1355,24 @@ end
 
 function AGS_GlobalSettings_SetPresetsSelection(preset_selection)
 	-- Map UI enum values to preset constants and call the presets module
+	-- Add safety checks to prevent nil access errors
+	if preset_selection == nil then
+		print("[AGS] Warning: preset_selection is nil, using default")
+		return
+	end
+	if preset_selection.enum_value == nil or preset_selection.enum_items == nil then
+		print("[AGS] Warning: preset_selection structure invalid, using default")
+		return
+	end
+
 	if preset_selection.enum_value == preset_selection.enum_items.preset_default then
 		AGS_Presets_SetSelectedPreset(AGS_PRESET_DEFAULT)
 	elseif preset_selection.enum_value == preset_selection.enum_items.preset_upgrades_1 then
 		AGS_Presets_SetSelectedPreset(AGS_PRESET_UPGRADES_1)
 	elseif preset_selection.enum_value == preset_selection.enum_items.preset_load_config then
 		AGS_Presets_SetSelectedPreset(AGS_PRESET_LOAD_CONFIG)
+	else
+		print("[AGS] Warning: Unknown preset selection, using default")
 	end
 end
 

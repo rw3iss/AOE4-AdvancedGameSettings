@@ -163,11 +163,12 @@ AGS_CUSTOM_CONFIG = {
 -- PRESET: Upgrades 1
 -- Uncomment the block below to use fast production settings
 ---------------------------------------------------------------------------------------------------
+--[[
 AGS_CUSTOM_CONFIG = {
 	-- win modes
 	Annihilation = true,        -- Destroy all enemies
 	Elimination = true,         -- Last player standing
-    Surrender = true,           -- Allow surrender
+	Surrender = true,           -- Allow surrender
 	Conquest = false,           -- Conquer objectives
 	Regicide = false,           -- Kill the king
 	Religious = false,          -- Control sacred sites
@@ -175,17 +176,17 @@ AGS_CUSTOM_CONFIG = {
 	Score = false,              -- Highest score wins
 
 	ConquestSettings = {
-	     Capital = true,
-	     Landmarks = true,
-	     TownCenters = true,
-	     Keeps = true,
-	     Wonder = true,
-	     IsTeamShared = false,
+		Capital = true,
+		Landmarks = true,
+		TownCenters = true,
+		Keeps = true,
+		Wonder = true,
+		IsTeamShared = false,
 	},
 
 	-- rates
 	GameRates = 1.5,                 -- 50% faster research/production
-	UnitRates = 1.25,                -- 25% faster units'
+	UnitRates = 1.25,                -- 25% faster units
 	SimulationSpeed = 1.25,          -- Simulation speed
 	MinimumPopulation = 100,
 	MaximumPopulation = 500,
@@ -194,18 +195,18 @@ AGS_CUSTOM_CONFIG = {
 	AdditionalHouseCapacity = 5,
 
 	-- extras
-	Treasures = true,           	 -- Spawn treasures on map
+	Treasures = true,                -- Spawn treasures on map
 	StartingKeeps = 1,
 	StartingVillagers = 8,
 
 	FreeCameraEnabled = true,
 	FreeCameraSettings = {
-	     MinZoomDistance = 2,
-	     MaxZoomDistance = 500,
-	     MinDeclination = 5,
-	     MaxDeclination = 89,
-	     DefaultZoomDistance = 50,
-	     DefaultDeclination = 50,
+		MinZoomDistance = 2,
+		MaxZoomDistance = 500,
+		MinDeclination = 5,
+		MaxDeclination = 89,
+		DefaultZoomDistance = 50,
+		DefaultDeclination = 50,
 	}
 }
 --]]
