@@ -196,14 +196,14 @@ AGS_GLOBAL_SETTINGS = {
 	TournamentNomadBalance = false,
 
 	-- Free Camera Settings
-	FreeCameraEnabled = true, -- Enables extended camera controls
+	FreeCameraEnabled = true, -- Enables extended camera controls (uses debug camera)
 	FreeCameraSettings = {
-		MinZoomDistance = 5, -- Minimum zoom distance (closer)
-		MaxZoomDistance = 200, -- Maximum zoom distance (further out)
-		MinDeclination = 10, -- Minimum camera angle (more top-down)
-		MaxDeclination = 80, -- Maximum camera angle (more horizontal)
-		DefaultZoomDistance = 40, -- Default zoom level
-		DefaultDeclination = 45, -- Default camera angle
+		MinZoomDistance = 2, -- Minimum zoom distance (very close, almost ground level)
+		MaxZoomDistance = 500, -- Maximum zoom distance (very far out, strategic view)
+		MinDeclination = 5, -- Minimum camera angle (nearly top-down)
+		MaxDeclination = 89, -- Maximum camera angle (nearly horizontal)
+		DefaultZoomDistance = 50, -- Default zoom level
+		DefaultDeclination = 50, -- Default camera angle
 	},
 }
 

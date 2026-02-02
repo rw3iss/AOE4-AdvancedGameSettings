@@ -5,19 +5,23 @@
 --
 -- Description:
 -- Extends camera controls to allow for greater zoom range and camera angle adjustments.
--- When enabled, the player can zoom in/out much further and adjust the camera declination
--- (viewing angle) for a more flexible perspective of the battlefield.
+-- This module attempts multiple methods to enable extended camera control:
+-- 1. Enables debug camera mode (if available)
+-- 2. Continuously applies extended camera parameters
+-- 3. Removes camera clamping restrictions
+--
+-- The extended camera allows:
+-- - Extended zoom range (zoom out much further, zoom in much closer)
+-- - Adjustable declination/pitch (camera viewing angle)
+-- - Free orbit/rotation
 ---------------------------------------------------------------------------------------------------
 
 AGS_FREE_CAMERA_MODULE = "AGS_FreeCamera"
 
--- Key code constants for modifier keys
-AGS_KEY_ALT = 2
-
--- Tracking state for camera mode
-AGS_FREE_CAMERA_ALT_HELD = false
-AGS_FREE_CAMERA_ORIGINAL_ZOOM = nil
-AGS_FREE_CAMERA_ORIGINAL_DECLINATION = nil
+-- State tracking
+AGS_FREE_CAMERA_INITIALIZED = false
+AGS_FREE_CAMERA_DEBUG_CAMERA_ATTEMPTED = false
+AGS_FREE_CAMERA_TICK_COUNT = 0
 
 ---------------------------------------------------------------------------------------------------
 -- Delegates:
@@ -29,111 +33,222 @@ function AGS_FreeCamera_UpdateModuleSettings()
 	AGS_Print("AGS_FreeCamera_UpdateModuleSettings")
 	if not AGS_GLOBAL_SETTINGS.FreeCameraEnabled then
 		Core_UnregisterModule(AGS_FREE_CAMERA_MODULE)
+		print("[Free Camera] Module disabled via settings")
+	else
+		print("[Free Camera] Module enabled")
 	end
 end
 
 function AGS_FreeCamera_OnPlay()
+	print("[Free Camera] OnPlay - Initializing extended camera...")
 	AGS_Print("AGS_FreeCamera_OnPlay")
-	-- Set extended camera defaults at game start
-	AGS_FreeCamera_ApplyExtendedLimits()
-	-- Start the input monitoring rule
-	Rule_AddInterval(AGS_FreeCamera_MonitorInput, 0.1)
+
+	-- Try to enable debug camera first (gives most freedom)
+	AGS_FreeCamera_TryEnableDebugCamera()
+
+	-- Apply extended settings immediately
+	AGS_FreeCamera_ApplyExtendedSettings()
+
+	-- Start the enforcement rule (runs frequently to maintain settings)
+	Rule_AddInterval(AGS_FreeCamera_EnforceSettings, 0.25)
+
+	AGS_FREE_CAMERA_INITIALIZED = true
+	print("[Free Camera] Initialization complete")
 end
 
 function AGS_FreeCamera_OnGameOver()
 	AGS_Print("AGS_FreeCamera_OnGameOver")
-	if Rule_Exists(AGS_FreeCamera_MonitorInput) then
-		Rule_Remove(AGS_FreeCamera_MonitorInput)
+	print("[Free Camera] OnGameOver - Cleaning up...")
+
+	if Rule_Exists(AGS_FreeCamera_EnforceSettings) then
+		Rule_Remove(AGS_FreeCamera_EnforceSettings)
 	end
 end
 
 ---------------------------------------------------------------------------------------------------
--- Functions:
+-- Core Functions:
 ---------------------------------------------------------------------------------------------------
 
--- Apply extended camera limits to allow greater zoom and angle range
-function AGS_FreeCamera_ApplyExtendedLimits()
-	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+-- Try to enable the debug camera (may not work in all builds)
+function AGS_FreeCamera_TryEnableDebugCamera()
+	print("[Free Camera] Attempting to enable debug camera...")
 
-	-- Set default zoom distance (allows for wider zoom range)
-	Camera_SetDefaultZoomDist(settings.DefaultZoomDistance)
+	-- Remove any camera clamping restrictions
+	local success_unclamp = pcall(function() Camera_Unclamp() end)
+	print("[Free Camera] Camera_Unclamp: " .. tostring(success_unclamp))
 
-	-- Set default declination (camera angle from horizontal)
-	Camera_SetDefaultDeclination(settings.DefaultDeclination)
+	-- Try to toggle debug camera
+	local success_debug = pcall(function() Camera_ToggleDebugCamera() end)
+	print("[Free Camera] Camera_ToggleDebugCamera: " .. tostring(success_debug))
 
-	-- Remove camera clamping restrictions
-	Camera_Unclamp()
-
-	AGS_Print("Free Camera: Extended limits applied")
+	AGS_FREE_CAMERA_DEBUG_CAMERA_ATTEMPTED = true
 end
 
--- Monitor for Alt key input to enable enhanced camera mode
-function AGS_FreeCamera_MonitorInput()
-	local alt_pressed = Misc_DetectKeyboardInput(AGS_KEY_ALT)
+-- Apply extended camera settings
+function AGS_FreeCamera_ApplyExtendedSettings()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
 
-	if alt_pressed and not AGS_FREE_CAMERA_ALT_HELD then
-		-- Alt key just pressed - save current camera state and apply extended mode
-		AGS_FREE_CAMERA_ALT_HELD = true
-		AGS_FreeCamera_EnterExtendedMode()
-	elseif not alt_pressed and AGS_FREE_CAMERA_ALT_HELD then
-		-- Alt key just released - restore previous camera state
-		AGS_FREE_CAMERA_ALT_HELD = false
-		AGS_FreeCamera_ExitExtendedMode()
+	print("[Free Camera] Applying extended settings...")
+	print("[Free Camera] MaxZoom: " .. tostring(settings.MaxZoomDistance))
+	print("[Free Camera] DefaultDeclination: " .. tostring(settings.DefaultDeclination))
+
+	-- Try each camera function with error handling
+	local funcs = {
+		{ name = "Camera_Unclamp", fn = function() Camera_Unclamp() end },
+		{ name = "Camera_SetDefaultZoomDist", fn = function() Camera_SetDefaultZoomDist(settings.MaxZoomDistance) end },
+		{ name = "Camera_SetDefaultDeclination", fn = function() Camera_SetDefaultDeclination(settings.DefaultDeclination) end },
+		{ name = "Camera_SetDefaultOrbit", fn = function() Camera_SetDefaultOrbit(0) end },
+		{ name = "Camera_SetZoomDist", fn = function() Camera_SetZoomDist(settings.DefaultZoomDistance) end },
+		{ name = "Camera_SetDeclination", fn = function() Camera_SetDeclination(settings.DefaultDeclination) end },
+	}
+
+	for _, func_info in ipairs(funcs) do
+		local success, err = pcall(func_info.fn)
+		if success then
+			print("[Free Camera] " .. func_info.name .. ": SUCCESS")
+		else
+			print("[Free Camera] " .. func_info.name .. ": FAILED - " .. tostring(err))
+		end
 	end
 end
 
--- Enter extended camera mode when Alt is held
-function AGS_FreeCamera_EnterExtendedMode()
+-- Continuously enforce extended camera settings
+function AGS_FreeCamera_EnforceSettings()
+	if not AGS_FREE_CAMERA_INITIALIZED then
+		return
+	end
+
+	AGS_FREE_CAMERA_TICK_COUNT = AGS_FREE_CAMERA_TICK_COUNT + 1
+
 	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
 
-	-- Save current camera state
-	AGS_FREE_CAMERA_ORIGINAL_ZOOM = Camera_GetZoomDist()
-	AGS_FREE_CAMERA_ORIGINAL_DECLINATION = Camera_GetDeclination()
+	-- Always keep camera unclamped
+	pcall(function() Camera_Unclamp() end)
 
-	-- Apply extended zoom distance
-	Camera_SetDefaultZoomDist(settings.MaxZoomDistance)
+	-- Continuously set the max zoom to extended value
+	pcall(function() Camera_SetDefaultZoomDist(settings.MaxZoomDistance) end)
 
-	-- Set default declination to allow full range
-	Camera_SetDefaultDeclination(settings.DefaultDeclination)
+	-- Continuously set declination to allow full range
+	pcall(function() Camera_SetDefaultDeclination(settings.DefaultDeclination) end)
 
-	AGS_Print("Free Camera: Extended mode enabled")
+	-- Log periodically (every ~10 seconds at 0.25s interval = 40 ticks)
+	if AGS_FREE_CAMERA_TICK_COUNT % 40 == 1 then
+		local zoom = 0
+		local decl = 0
+		pcall(function() zoom = Camera_GetZoomDist() end)
+		pcall(function() decl = Camera_GetDeclination() end)
+		print("[Free Camera] Status - Zoom: " .. tostring(zoom) .. ", Declination: " .. tostring(decl))
+	end
 end
 
--- Exit extended camera mode when Alt is released
-function AGS_FreeCamera_ExitExtendedMode()
-	-- The camera returns to normal game defaults when free camera mode ends
-	-- We just need to reset our extended defaults
+---------------------------------------------------------------------------------------------------
+-- Manual Control Functions (can be called from console or other scripts):
+---------------------------------------------------------------------------------------------------
+
+-- Zoom in by a step amount
+function AGS_FreeCamera_ZoomIn(step)
+	step = step or 20
+	local current = Camera_GetZoomDist()
 	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
-
-	Camera_SetDefaultZoomDist(settings.DefaultZoomDistance)
-	Camera_SetDefaultDeclination(settings.DefaultDeclination)
-
-	AGS_Print("Free Camera: Extended mode disabled")
+	local new_zoom = math.max(settings.MinZoomDistance, current - step)
+	Camera_SetZoomDist(new_zoom)
+	print("[Free Camera] Zoomed in to: " .. tostring(new_zoom))
 end
 
--- Utility function to set zoom distance within extended limits
-function AGS_FreeCamera_SetZoom(distance)
+-- Zoom out by a step amount
+function AGS_FreeCamera_ZoomOut(step)
+	step = step or 20
+	local current = Camera_GetZoomDist()
 	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
-	local clamped = math.max(settings.MinZoomDistance, math.min(settings.MaxZoomDistance, distance))
-	Camera_SetZoomDist(clamped)
+	local new_zoom = math.min(settings.MaxZoomDistance, current + step)
+	Camera_SetZoomDist(new_zoom)
+	print("[Free Camera] Zoomed out to: " .. tostring(new_zoom))
 end
 
--- Utility function to set declination within extended limits
-function AGS_FreeCamera_SetDeclination(angle)
+-- Increase camera angle (more horizontal view)
+function AGS_FreeCamera_AngleUp(step)
+	step = step or 10
+	local current = Camera_GetDeclination()
 	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
-	local clamped = math.max(settings.MinDeclination, math.min(settings.MaxDeclination, angle))
-	Camera_SetDeclination(clamped)
+	local new_angle = math.min(settings.MaxDeclination, current + step)
+	Camera_SetDeclination(new_angle)
+	print("[Free Camera] Angle changed to: " .. tostring(new_angle))
 end
 
--- Utility function to set orbit/rotation
-function AGS_FreeCamera_SetOrbit(angle)
-	Camera_SetOrbit(angle)
+-- Decrease camera angle (more top-down view)
+function AGS_FreeCamera_AngleDown(step)
+	step = step or 10
+	local current = Camera_GetDeclination()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	local new_angle = math.max(settings.MinDeclination, current - step)
+	Camera_SetDeclination(new_angle)
+	print("[Free Camera] Angle changed to: " .. tostring(new_angle))
 end
 
--- Utility function to reset camera to defaults
+-- Rotate camera left
+function AGS_FreeCamera_RotateLeft(degrees)
+	degrees = degrees or 15
+	Camera_SetOrbitRelative(-degrees)
+	print("[Free Camera] Rotated left by: " .. tostring(degrees))
+end
+
+-- Rotate camera right
+function AGS_FreeCamera_RotateRight(degrees)
+	degrees = degrees or 15
+	Camera_SetOrbitRelative(degrees)
+	print("[Free Camera] Rotated right by: " .. tostring(degrees))
+end
+
+-- Set camera to maximum zoom out
+function AGS_FreeCamera_MaxZoomOut()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	Camera_SetZoomDist(settings.MaxZoomDistance)
+	print("[Free Camera] Set to max zoom: " .. tostring(settings.MaxZoomDistance))
+end
+
+-- Set camera to minimum zoom (close up)
+function AGS_FreeCamera_MinZoomIn()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	Camera_SetZoomDist(settings.MinZoomDistance)
+	print("[Free Camera] Set to min zoom: " .. tostring(settings.MinZoomDistance))
+end
+
+-- Set camera to top-down view
+function AGS_FreeCamera_TopDownView()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	Camera_SetDeclination(settings.MinDeclination)
+	print("[Free Camera] Set to top-down view: " .. tostring(settings.MinDeclination))
+end
+
+-- Set camera to horizontal view
+function AGS_FreeCamera_HorizontalView()
+	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
+	Camera_SetDeclination(settings.MaxDeclination)
+	print("[Free Camera] Set to horizontal view: " .. tostring(settings.MaxDeclination))
+end
+
+-- Reset camera to defaults
 function AGS_FreeCamera_ResetToDefaults()
 	local settings = AGS_GLOBAL_SETTINGS.FreeCameraSettings
 	Camera_SetZoomDist(settings.DefaultZoomDistance)
 	Camera_SetDeclination(settings.DefaultDeclination)
 	Camera_ResetOrbit()
+	print("[Free Camera] Reset to defaults")
+end
+
+-- Display current camera info
+function AGS_FreeCamera_Info()
+	local zoom = Camera_GetZoomDist()
+	local decl = Camera_GetDeclination()
+	local orbit = Camera_GetOrbit()
+	print("[Free Camera] Current state:")
+	print("  Zoom: " .. tostring(zoom))
+	print("  Declination: " .. tostring(decl))
+	print("  Orbit: " .. tostring(orbit))
+end
+
+-- Toggle debug camera on/off
+function AGS_FreeCamera_ToggleDebug()
+	Camera_ToggleDebugCamera()
+	print("[Free Camera] Debug camera toggled")
 end
