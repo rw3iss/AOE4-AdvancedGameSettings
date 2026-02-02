@@ -12,6 +12,12 @@
 -- 2. Set the value you want
 -- 3. Save the file
 -- 4. In-game, select "Load from Config" from the Preset dropdown
+-- 5. Start the game - settings will be applied at game launch
+--
+-- IMPORTANT: The UI dropdowns/checkboxes will NOT visually update when you select a preset.
+-- This is a limitation of AoE4's lobby UI system. The preset settings are applied when the
+-- game starts, overriding the values shown in the UI. A notification will appear in-game
+-- confirming which preset was applied.
 --
 -- TIP: Set AGS_CONFIG_ENABLED = true to enable loading, or false to disable
 ---------------------------------------------------------------------------------------------------

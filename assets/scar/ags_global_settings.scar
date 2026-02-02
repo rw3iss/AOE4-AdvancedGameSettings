@@ -195,6 +195,9 @@ AGS_GLOBAL_SETTINGS = {
 	ObserverUI = true, -- undefined
 	TournamentNomadBalance = false,
 
+	-- Resource Scaling
+	ResourceScaling = 1.0, -- Multiplier for resource deposit amounts (1.0 = normal, 2.0 = double, etc.)
+
 	-- Free Camera Settings
 	FreeCameraEnabled = true, -- Enables extended camera controls (uses debug camera)
 	FreeCameraSettings = {
@@ -258,6 +261,13 @@ function AGS_GlobalSettings_SetupSettings(options)
 
 	if options.section_outer_presets_settings then
 		AGS_GlobalSettings_DefinePresetsSettings(options.section_outer_presets_settings)
+	end
+
+	if options.section_outer_game_settings then
+		-- Resource scaling is part of game settings section
+		if options.section_outer_game_settings.option_game_setting_resource_scaling then
+			AGS_GlobalSettings_SetResourceScaling(options.section_outer_game_settings.option_game_setting_resource_scaling)
+		end
 	end
 end
 
@@ -1351,5 +1361,33 @@ function AGS_GlobalSettings_SetPresetsSelection(preset_selection)
 		AGS_Presets_SetSelectedPreset(AGS_PRESET_UPGRADES_1)
 	elseif preset_selection.enum_value == preset_selection.enum_items.preset_load_config then
 		AGS_Presets_SetSelectedPreset(AGS_PRESET_LOAD_CONFIG)
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Resource Scaling Settings:
+---------------------------------------------------------------------------------------------------
+
+function AGS_GlobalSettings_SetResourceScaling(resource_scaling)
+	if resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_1 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 1.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_2 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 2.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_3 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 3.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_4 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 4.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_5 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 5.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_6 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 6.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_7 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 7.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_8 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 8.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_9 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 9.0
+	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_10 then
+		AGS_GLOBAL_SETTINGS.ResourceScaling = 10.0
 	end
 end

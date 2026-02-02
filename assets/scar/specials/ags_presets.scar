@@ -39,6 +39,14 @@ function AGS_Presets_AdjustSettings()
 	AGS_Presets_ApplySelectedPreset()
 end
 
+function AGS_Presets_OnPlay()
+	AGS_Print("AGS_Presets_OnPlay")
+	-- Show notification if a non-default preset was applied
+	if AGS_SELECTED_PRESET ~= AGS_PRESET_DEFAULT then
+		AGS_Presets_ShowNotification()
+	end
+end
+
 ---------------------------------------------------------------------------------------------------
 -- Preset Selection (called from AGS_GlobalSettings):
 ---------------------------------------------------------------------------------------------------
@@ -197,4 +205,52 @@ function AGS_Presets_Debug()
 	print("  - MaxPopulation: " .. tostring(AGS_GLOBAL_SETTINGS.MaximumPopulation))
 	print("  - StartingResources: " .. tostring(AGS_GLOBAL_SETTINGS.StartingResources))
 	print("  - DoubleWorkers: " .. tostring(AGS_GLOBAL_SETTINGS.DoubleWorkers))
+end
+
+---------------------------------------------------------------------------------------------------
+-- In-Game Notification:
+---------------------------------------------------------------------------------------------------
+
+-- Show a notification when a preset is applied
+function AGS_Presets_ShowNotification()
+	local preset_name = AGS_Presets_GetPresetName(AGS_SELECTED_PRESET)
+	local message = "Preset Applied: " .. preset_name
+	local description = "Settings have been overridden by the selected preset."
+
+	if AGS_SELECTED_PRESET == AGS_PRESET_UPGRADES_1 then
+		description = "1.5x game rates, 1.25x unit speed, 300 max pop, High resources"
+	elseif AGS_SELECTED_PRESET == AGS_PRESET_LOAD_CONFIG then
+		description = "Custom settings loaded from ags_custom_config.lua"
+	end
+
+	-- Create notification cue for all local players
+	local cue = {
+		lifetime = 15.0,
+		repeatTime = 0,
+		template = "high_priority",
+		icon = "icons\\common\\orders\\rally_point",
+		sfx = "sfx_ui_event_queue_high_priority_play",
+		color = { r = 255, g = 200, b = 50, a = 255 },
+		style = ECV_Queue,
+	}
+
+	UI_CreateEventCueClickable(
+		-1,
+		cue.lifetime,
+		0,
+		cue.repeatTime,
+		message,
+		description,
+		cue.template,
+		cue.icon,
+		cue.sfx,
+		cue.color.r,
+		cue.color.g,
+		cue.color.b,
+		cue.color.a,
+		cue.style,
+		nothing
+	)
+
+	print("[AGS Presets] Notification shown: " .. message)
 end

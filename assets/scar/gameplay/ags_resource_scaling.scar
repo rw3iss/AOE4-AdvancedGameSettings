@@ -1,0 +1,190 @@
+---------------------------------------------------------------------------------------------------
+-- Authors:
+-- Custom Extension
+--
+-- Description:
+-- Scales the amount of resources available in resource deposits (trees, mines, bushes, etc.)
+-- This multiplies the total harvestable resources at each deposit point.
+---------------------------------------------------------------------------------------------------
+
+AGS_RESOURCE_SCALING_MODULE = "AGS_ResourceScaling"
+AGS_RESOURCE_SCALING_APPLIED = false
+
+---------------------------------------------------------------------------------------------------
+-- Delegates:
+---------------------------------------------------------------------------------------------------
+
+Core_RegisterModule(AGS_RESOURCE_SCALING_MODULE)
+
+function AGS_ResourceScaling_UpdateModuleSettings()
+	AGS_Print("AGS_ResourceScaling_UpdateModuleSettings")
+	if AGS_GLOBAL_SETTINGS.ResourceScaling == 1.0 then
+		Core_UnregisterModule(AGS_RESOURCE_SCALING_MODULE)
+		print("[Resource Scaling] Module disabled (scaling = 1.0)")
+	else
+		print("[Resource Scaling] Module enabled with scaling: " .. tostring(AGS_GLOBAL_SETTINGS.ResourceScaling))
+	end
+end
+
+function AGS_ResourceScaling_PresetFinalize()
+	AGS_Print("AGS_ResourceScaling_PresetFinalize")
+	if AGS_RESOURCE_SCALING_APPLIED then
+		return
+	end
+
+	print("[Resource Scaling] Applying resource scaling: " .. tostring(AGS_GLOBAL_SETTINGS.ResourceScaling))
+
+	-- Apply scaling to all neutral resource deposits on the map
+	AGS_ResourceScaling_ApplyToAllDeposits()
+
+	AGS_RESOURCE_SCALING_APPLIED = true
+end
+
+---------------------------------------------------------------------------------------------------
+-- Functions:
+---------------------------------------------------------------------------------------------------
+
+-- Apply resource scaling to all neutral deposits on the map
+function AGS_ResourceScaling_ApplyToAllDeposits()
+	local all_neutral = EGroup_CreateIfNotFound("ags_resource_scaling_neutral")
+	World_GetAllNeutralEntities(all_neutral)
+
+	local scaling = AGS_GLOBAL_SETTINGS.ResourceScaling
+	local scaled_count = 0
+
+	local _ApplyScaling = function(gid, idx, eid)
+		if eid == nil or not Entity_IsValid(eid) then
+			return
+		end
+
+		local was_scaled = false
+
+		-- Scale gold deposits
+		if Entity_IsOfType(eid, AGS_BP_DEPOSIT_GOLD) then
+			AGS_ResourceScaling_ScaleDeposit(eid, "gold", scaling)
+			was_scaled = true
+		-- Scale stone deposits
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_STONE) then
+			AGS_ResourceScaling_ScaleDeposit(eid, "stone", scaling)
+			was_scaled = true
+		-- Scale food deposits (berry bushes)
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_FOOD) then
+			AGS_ResourceScaling_ScaleDeposit(eid, "food", scaling)
+			was_scaled = true
+		-- Scale trees (wood)
+		elseif Entity_IsOfType(eid, AGS_BP_TREE) then
+			AGS_ResourceScaling_ScaleDeposit(eid, "wood", scaling)
+			was_scaled = true
+		-- Scale animals (deer, boar, sheep, etc.)
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_ANIMAL) then
+			AGS_ResourceScaling_ScaleDeposit(eid, "food", scaling)
+			was_scaled = true
+		end
+
+		if was_scaled then
+			scaled_count = scaled_count + 1
+		end
+	end
+
+	EGroup_ForEach(all_neutral, _ApplyScaling)
+
+	print("[Resource Scaling] Applied scaling to " .. tostring(scaled_count) .. " resource deposits")
+
+	-- Clean up the temporary egroup
+	EGroup_Clear(all_neutral)
+end
+
+-- Scale a single deposit entity
+function AGS_ResourceScaling_ScaleDeposit(entity_id, resource_type, scaling)
+	-- Try multiple approaches to scale the resource
+
+	-- Approach 1: Try to use state model for resource amounts
+	-- Common state model fields that might control resource amounts
+	local state_model_fields = {
+		"resource_amount",
+		"resource_remaining",
+		"resource_max",
+		"resources_remaining",
+		"resource_" .. resource_type .. "_amount",
+		"harvestable_resource_amount",
+		"deposit_resource_amount",
+	}
+
+	for _, field in ipairs(state_model_fields) do
+		local success, current_value = pcall(function()
+			return Entity_GetStateModelFloat(entity_id, field)
+		end)
+
+		if success and current_value and current_value > 0 then
+			local new_value = current_value * scaling
+			pcall(function()
+				Entity_SetStateModelFloat(entity_id, field, new_value)
+			end)
+			-- If we successfully got a value, this is likely the right field
+			break
+		end
+	end
+
+	-- Approach 2: Try to apply a modifier to the entity directly
+	-- This might work for certain entity types
+	local modifier_types = {
+		"resource_deposit_capacity_modifier",
+		"resource_amount_modifier",
+		"harvestable_resource_modifier",
+	}
+
+	for _, modifier_type in ipairs(modifier_types) do
+		pcall(function()
+			local modifier = Modifier_Create(MAT_Entity, modifier_type, MUT_Multiplication, false, scaling)
+			Modifier_ApplyToEntity(modifier, entity_id, 0.0)
+		end)
+	end
+end
+
+-- Debug function to print resource deposit info
+function AGS_ResourceScaling_Debug()
+	local all_neutral = EGroup_CreateIfNotFound("ags_resource_scaling_debug")
+	World_GetAllNeutralEntities(all_neutral)
+
+	local counts = {
+		gold = 0,
+		stone = 0,
+		food = 0,
+		tree = 0,
+		animal = 0,
+		other = 0,
+	}
+
+	local _CountDeposits = function(gid, idx, eid)
+		if eid == nil or not Entity_IsValid(eid) then
+			return
+		end
+
+		if Entity_IsOfType(eid, AGS_BP_DEPOSIT_GOLD) then
+			counts.gold = counts.gold + 1
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_STONE) then
+			counts.stone = counts.stone + 1
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_FOOD) then
+			counts.food = counts.food + 1
+		elseif Entity_IsOfType(eid, AGS_BP_TREE) then
+			counts.tree = counts.tree + 1
+		elseif Entity_IsOfType(eid, AGS_BP_DEPOSIT_ANIMAL) then
+			counts.animal = counts.animal + 1
+		else
+			counts.other = counts.other + 1
+		end
+	end
+
+	EGroup_ForEach(all_neutral, _CountDeposits)
+
+	print("[Resource Scaling] Debug - Neutral entities:")
+	print("  Gold deposits: " .. tostring(counts.gold))
+	print("  Stone deposits: " .. tostring(counts.stone))
+	print("  Food deposits (bushes): " .. tostring(counts.food))
+	print("  Trees: " .. tostring(counts.tree))
+	print("  Animals: " .. tostring(counts.animal))
+	print("  Other: " .. tostring(counts.other))
+	print("  Current scaling: " .. tostring(AGS_GLOBAL_SETTINGS.ResourceScaling))
+
+	EGroup_Clear(all_neutral)
+end

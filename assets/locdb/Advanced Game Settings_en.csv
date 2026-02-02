@@ -433,12 +433,24 @@
 435,,,,Number,,85 degrees
 436,,,,Number,,89 degrees
 440,,,,Preset Option,,Presets
-441,,,,Preset Option,,Select a preset to quickly apply pre-configured game settings.
+441,,,,Preset Option,,Select a preset to override UI settings when the game starts. NOTE: The UI will not visually update - preset values are applied at game start.
 442,,,,Preset Option,,Settings Preset
-443,,,,Preset Option,,Choose a preset configuration or load settings from an external config file.
+443,,,,Preset Option,,Choose a preset to override settings when game starts. UI values will NOT update visually - preset is applied at game launch.
 444,,,,Preset Option,,Default
-445,,,,Preset Option,,Use UI settings as configured (no preset override)
+445,,,,Preset Option,,Use all UI settings exactly as shown (no override)
 446,,,,Preset Option,,Upgrades 1
-447,,,,Preset Option,,Faster production and larger armies - 1.5x game rates and 300 max population
+447,,,,Preset Option,,OVERRIDES: 1.5x game rates, 1.25x unit speed, 300 max pop, High resources, Double workers, 8 starting villagers
 448,,,,Preset Option,,Load from Config
-449,,,,Preset Option,,Load settings from ags_custom_config.lua external file
+449,,,,Preset Option,,OVERRIDES UI with settings from ags_custom_config.lua file. Edit that file to customize your preset.
+450,,,,Resource Scaling Option,,Resource Scaling
+451,,,,Resource Scaling Option,,Multiplies the amount of resources in all deposits (trees, mines, bushes, animals).
+452,,,,Resource Scaling Option,,1x (Normal)
+453,,,,Resource Scaling Option,,2x (Double)
+454,,,,Resource Scaling Option,,3x (Triple)
+455,,,,Resource Scaling Option,,4x
+456,,,,Resource Scaling Option,,5x
+457,,,,Resource Scaling Option,,6x
+458,,,,Resource Scaling Option,,7x
+459,,,,Resource Scaling Option,,8x
+460,,,,Resource Scaling Option,,9x
+461,,,,Resource Scaling Option,,10x
