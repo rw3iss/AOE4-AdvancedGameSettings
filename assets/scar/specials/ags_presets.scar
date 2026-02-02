@@ -26,33 +26,22 @@ AGS_SELECTED_PRESET = AGS_PRESET_DEFAULT
 -- Delegates:
 ---------------------------------------------------------------------------------------------------
 
-Core_RegisterModule(AGS_PRESETS_MODULE)
+-- TEMPORARILY DISABLED - uncomment to re-enable presets functionality
+-- Core_RegisterModule(AGS_PRESETS_MODULE)
 
 function AGS_Presets_UpdateModuleSettings()
 	AGS_Print("AGS_Presets_UpdateModuleSettings")
-	-- Always enabled
+	-- Module disabled for debugging
 end
 
 function AGS_Presets_AdjustSettings()
 	AGS_Print("AGS_Presets_AdjustSettings")
-	-- Apply the selected preset after initial settings are loaded
-	-- Wrap in pcall to prevent errors from hanging the game
-	local success, err = pcall(AGS_Presets_ApplySelectedPreset)
-	if not success then
-		print("[AGS Presets] ERROR applying preset: " .. tostring(err))
-	end
+	-- Module disabled for debugging
 end
 
 function AGS_Presets_OnPlay()
 	AGS_Print("AGS_Presets_OnPlay")
-	-- Show notification if a non-default preset was applied
-	-- Wrap in pcall to prevent errors from crashing the game
-	if AGS_SELECTED_PRESET ~= nil and AGS_SELECTED_PRESET ~= AGS_PRESET_DEFAULT then
-		local success, err = pcall(AGS_Presets_ShowNotification)
-		if not success then
-			print("[AGS Presets] ERROR showing notification: " .. tostring(err))
-		end
-	end
+	-- Module disabled for debugging
 end
 
 ---------------------------------------------------------------------------------------------------

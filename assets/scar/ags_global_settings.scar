@@ -1381,6 +1381,16 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function AGS_GlobalSettings_SetResourceScaling(resource_scaling)
+	-- Add safety checks to prevent nil access errors
+	if resource_scaling == nil then
+		print("[AGS] Warning: resource_scaling is nil, using default")
+		return
+	end
+	if resource_scaling.enum_value == nil or resource_scaling.enum_items == nil then
+		print("[AGS] Warning: resource_scaling structure invalid, using default")
+		return
+	end
+
 	if resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_1 then
 		AGS_GLOBAL_SETTINGS.ResourceScaling = 1.0
 	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_2 then
@@ -1401,5 +1411,7 @@ function AGS_GlobalSettings_SetResourceScaling(resource_scaling)
 		AGS_GLOBAL_SETTINGS.ResourceScaling = 9.0
 	elseif resource_scaling.enum_value == resource_scaling.enum_items.resource_scaling_10 then
 		AGS_GLOBAL_SETTINGS.ResourceScaling = 10.0
+	else
+		print("[AGS] Warning: Unknown resource_scaling selection, using default")
 	end
 end

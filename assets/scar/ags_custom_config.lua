@@ -23,7 +23,8 @@
 ---------------------------------------------------------------------------------------------------
 
 -- Enable/disable config loading (set to true to use these settings)
-AGS_CONFIG_ENABLED = true
+-- TEMPORARILY DISABLED for debugging
+AGS_CONFIG_ENABLED = false
 
 -- Your custom settings (uncomment and modify the ones you want to change)
 AGS_CUSTOM_CONFIG = {

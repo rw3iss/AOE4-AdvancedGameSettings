@@ -14,30 +14,17 @@ AGS_RESOURCE_SCALING_APPLIED = false
 -- Delegates:
 ---------------------------------------------------------------------------------------------------
 
-Core_RegisterModule(AGS_RESOURCE_SCALING_MODULE)
+-- TEMPORARILY DISABLED - uncomment to re-enable resource scaling functionality
+-- Core_RegisterModule(AGS_RESOURCE_SCALING_MODULE)
 
 function AGS_ResourceScaling_UpdateModuleSettings()
 	AGS_Print("AGS_ResourceScaling_UpdateModuleSettings")
-	if AGS_GLOBAL_SETTINGS.ResourceScaling == 1.0 then
-		Core_UnregisterModule(AGS_RESOURCE_SCALING_MODULE)
-		print("[Resource Scaling] Module disabled (scaling = 1.0)")
-	else
-		print("[Resource Scaling] Module enabled with scaling: " .. tostring(AGS_GLOBAL_SETTINGS.ResourceScaling))
-	end
+	-- Module disabled for debugging
 end
 
 function AGS_ResourceScaling_PresetFinalize()
 	AGS_Print("AGS_ResourceScaling_PresetFinalize")
-	if AGS_RESOURCE_SCALING_APPLIED then
-		return
-	end
-
-	print("[Resource Scaling] Applying resource scaling: " .. tostring(AGS_GLOBAL_SETTINGS.ResourceScaling))
-
-	-- Apply scaling to all neutral resource deposits on the map
-	AGS_ResourceScaling_ApplyToAllDeposits()
-
-	AGS_RESOURCE_SCALING_APPLIED = true
+	-- Module disabled for debugging
 end
 
 ---------------------------------------------------------------------------------------------------
