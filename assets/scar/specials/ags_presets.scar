@@ -83,6 +83,12 @@ end
 function AGS_Presets_ApplyUpgrades1()
 	print("[AGS Presets] Applying 'Upgrades 1' preset")
 
+	AGS_GLOBAL_SETTINGS.Annihilation = true        -- Destroy all enemies
+	AGS_GLOBAL_SETTINGS.Elimination = true         -- Last player standing
+    AGS_GLOBAL_SETTINGS.Surrender = true
+
+	AGS_GLOBAL_SETTINGS.SimulationSpeed = 1.5
+
 	-- Faster game rates (research, production)
 	AGS_GLOBAL_SETTINGS.GameRates = 1.5
 
@@ -90,11 +96,11 @@ function AGS_Presets_ApplyUpgrades1()
 	AGS_GLOBAL_SETTINGS.UnitRates = 1.25
 
 	-- Larger population cap
-	AGS_GLOBAL_SETTINGS.MaximumPopulation = 300
-	AGS_GLOBAL_SETTINGS.MinimumPopulation = 200
+	AGS_GLOBAL_SETTINGS.MaximumPopulation = 1000
+	AGS_GLOBAL_SETTINGS.MinimumPopulation = 100
 
 	-- More starting resources
-	AGS_GLOBAL_SETTINGS.StartingResources = AGS_GS_RESOURCES_HIGH
+	AGS_GLOBAL_SETTINGS.StartingResources = AGS_GS_RESOURCES_MEDIUM
 
 	-- Double workers (cheaper, faster villagers)
 	AGS_GLOBAL_SETTINGS.DoubleWorkers = true
@@ -102,8 +108,10 @@ function AGS_Presets_ApplyUpgrades1()
 	-- More starting villagers
 	AGS_GLOBAL_SETTINGS.StartingVillagers = 8
 
+	AGS_GLOBAL_SETTINGS.StartingKeeps = 1
+
 	-- Additional house capacity
-	AGS_GLOBAL_SETTINGS.AdditionalHouseCapacity = 10
+	AGS_GLOBAL_SETTINGS.AdditionalHouseCapacity = 5
 
 	print("[AGS Presets] 'Upgrades 1' preset applied:")
 	print("  - Game Rates: 1.5x")

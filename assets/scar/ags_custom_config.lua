@@ -163,13 +163,50 @@ AGS_CUSTOM_CONFIG = {
 -- PRESET: Upgrades 1
 -- Uncomment the block below to use fast production settings
 ---------------------------------------------------------------------------------------------------
---[[
 AGS_CUSTOM_CONFIG = {
-	GameRates = 1.5,              -- 50% faster research/production
-	UnitRates = 1.25,             -- 25% faster units
-	MaximumPopulation = 300,
-	StartingResources = 4,        -- High resources
-	DoubleWorkers = true,         -- Cheaper, faster villagers
+	-- win modes
+	Annihilation = true,        -- Destroy all enemies
+	Elimination = true,         -- Last player standing
+    Surrender = true,           -- Allow surrender
+	Conquest = false,           -- Conquer objectives
+	Regicide = false,           -- Kill the king
+	Religious = false,          -- Control sacred sites
+	Wonder = false,             -- Build and defend wonder
+	Score = false,              -- Highest score wins
+
+	ConquestSettings = {
+	     Capital = true,
+	     Landmarks = true,
+	     TownCenters = true,
+	     Keeps = true,
+	     Wonder = true,
+	     IsTeamShared = false,
+	},
+
+	-- rates
+	GameRates = 1.5,                 -- 50% faster research/production
+	UnitRates = 1.25,                -- 25% faster units'
+	SimulationSpeed = 1.25,          -- Simulation speed
+	MinimumPopulation = 100,
+	MaximumPopulation = 500,
+	StartingResources = 3,           -- Medium resources
+	DoubleWorkers = true,            -- Cheaper, faster villagers
+	AdditionalHouseCapacity = 5,
+
+	-- extras
+	Treasures = true,           	 -- Spawn treasures on map
+	StartingKeeps = 1,
+	StartingVillagers = 8,
+
+	FreeCameraEnabled = true,
+	FreeCameraSettings = {
+	     MinZoomDistance = 2,
+	     MaxZoomDistance = 500,
+	     MinDeclination = 5,
+	     MaxDeclination = 89,
+	     DefaultZoomDistance = 50,
+	     DefaultDeclination = 50,
+	}
 }
 --]]
 
